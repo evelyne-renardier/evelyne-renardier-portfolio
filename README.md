@@ -1,2 +1,1 @@
-# evelyne-renardier.github.io
-Evelyne Renardier - Portfolio Personnel
+# Evelyne Renardier - Portfolio Personnel
