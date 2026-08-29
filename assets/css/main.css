@@ -760,6 +760,19 @@ body[data-cta-arrow="on"] .btn-sec:hover::after { transform: translateX(3px); }
   border: 0;
 }
 .map-embed-combined { margin-top: 28px; }
+/* .credentials-grid: new with the "Grille de témoignages/credentials"
+   library component (Stage 2) — .credential itself already existed
+   mockup-fidèle from the Stage 1 audit but had no grid wrapper since
+   nothing used it yet. Two columns down to one on narrow screens,
+   matching the theme's other grid components. */
+.credentials-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 24px;
+}
+@media (max-width: 600px) {
+  .credentials-grid { grid-template-columns: 1fr; }
+}
 .credential {
   display: flex;
   align-items: flex-start;
@@ -1134,6 +1147,20 @@ body[data-cta-arrow="on"] .btn-sec:hover::after { transform: translateX(3px); }
 }
 .callout strong { color: var(--accent-2); }
 
+/* "Callout" — bordered "à retenir" box variant (client-requested 2026-08-29,
+   matches Déroulement d'une séance's real mockup box: label + title +
+   highlighted lead line + optional divider/closing paragraph). Reuses
+   .surface-section's real border token rather than inventing a new one. */
+.callout-box {
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+.callout-box-divider {
+  margin-top: 24px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+
 /* "Étapes" layout (numbered steps) — exact values from the design
    mockup, including the divider line between steps and the small
    uppercase step-title treatment (not a large serif heading). */
@@ -1176,6 +1203,116 @@ body[data-cta-arrow="on"] .btn-sec:hover::after { transform: translateX(3px); }
   color: var(--text-2);
   line-height: 1.65;
 }
+
+/* "Tableau tarifaire" (pricing) and "Grille d'infos rapides" (quick-info) —
+   Stage 2 library components. Original CSS here was a guess, never
+   verified against the real design mockup — client supplied the actual
+   mockup afterward (an Artifact, the real Infos pratiques page) and these
+   rules are transcribed directly from it: .tarif-wrap/.tarif-table (a real
+   <table>, not a flex/grid list) and .info-grid/.info-card. Component
+   markup (template.hbs) rewritten to match — this was a real, structural
+   mismatch, not just colors/spacing. */
+.tarif-wrap { overflow-x: auto; border: 1px solid var(--border); }
+.tarif-table { width: 100%; border-collapse: collapse; }
+.tarif-table th {
+  background: var(--accent);
+  color: #fff;
+  padding: 11px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+}
+.tarif-table td {
+  padding: 11px 16px;
+  font-size: 13px;
+  color: var(--text-2);
+  border-bottom: 1px solid var(--border);
+}
+.tarif-table tr:last-child td { border-bottom: none; }
+.tarif-table tr:hover td { background: var(--surface); }
+.tarif-amount { font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+.info-card {
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  padding: 20px;
+  background: var(--bg);
+}
+.info-card-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+.info-card-val { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+.info-card-val strong { color: var(--text); }
+
+/* ═══════════════════════════════════════════════════
+   PUBLICATIONS / ACTUALITÉS — Track C item 3, transcribed directly from
+   the real mockup Artifact's own CSS, not approximated.
+   ═══════════════════════════════════════════════════ */
+.pub-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: start;
+}
+.pub-item:last-child { border-bottom: none; }
+.pub-year {
+  font-family: var(--font-serif), serif;
+  font-size: 22px;
+  color: var(--accent);
+  line-height: 1.2;
+  padding-top: 2px;
+}
+.pub-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.pub-h3 { font-family: var(--font-serif), serif; font-size: 17px; color: var(--text); margin-bottom: 6px; }
+.pub-text { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+
+.news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.news-card { border: 1px solid var(--border); border-top: 3px solid var(--accent); background: var(--bg); }
+.news-card-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.news-card-body { padding: 20px; }
+.news-card-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.news-card-h3 { font-family: var(--font-serif), serif; font-size: 16px; color: var(--text); margin-bottom: 8px; line-height: 1.3; }
+.news-card-text { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+
+/* ─── CONFÉRENCES — teaser style, deliberately distinct from
+   pub-item/news-card (client-requested second blog-display style,
+   2026-08-29): a larger single-column block per post, matching the
+   mockup's own label/section-h2/body-text visual language instead of
+   a compact list/grid item. ─── */
+.conference-item {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+}
+.conference-item:last-child { border-bottom: none; }
+.conference-item .section-label { margin-bottom: 8px; }
+.conference-item .section-h2 { margin-bottom: 10px; }
 
 /* ═══════════════════════════════════════════════════
    FOOTER
@@ -1292,6 +1429,16 @@ body[data-cta-arrow="on"] .btn-sec:hover::after { transform: translateX(3px); }
 
   .hero {
     grid-template-columns: 1fr;
+  }
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  .news-grid {
+    grid-template-columns: 1fr;
+  }
+  .pub-item {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
   .hero-photo {
     height: 280px;

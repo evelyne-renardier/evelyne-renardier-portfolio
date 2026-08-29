@@ -1,2 +1,3 @@
 User-agent: *
-Disallow: /
+Disallow:
+Sitemap: https://evelyne-renardier.github.io/evelyne-renardier-portfolio/sitemap.xml
