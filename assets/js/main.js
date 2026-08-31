@@ -14,28 +14,46 @@
      a foreground color tuned for one can vanish on the other -- a
      background we control removes that guesswork, same contrast either
      way. Colors are the theme's own real tokens (--accent/--accent-2/
-     --accent-l/--text-2), not invented. See docs/architecture.md. */
-  console.log(
-    '%c THÈME %c RENARDIER ',
-    'background:#0F4A55;color:#fff;padding:5px 0 5px 11px;border-radius:4px 0 0 4px;font-weight:700;font-family:sans-serif;font-size:12px;letter-spacing:.04em;',
-    'background:#176472;color:#fff;padding:5px 11px 5px 0;border-radius:0 4px 4px 0;font-weight:400;font-family:sans-serif;font-size:12px;letter-spacing:.04em;'
-  );
-  console.log(
-    '%cConçu et développé par Reza Belounis',
-    'font-family:Georgia,serif;font-size:15px;font-weight:600;background:#176472;color:#fff;padding:4px 10px;border-radius:4px;'
-  );
-  console.log(
-    '%c→ github.com/r-belounis',
-    'font-family:monospace;font-size:12px;background:#4A6468;color:#EAF3F4;padding:4px 10px;border-radius:4px;'
-  );
-  console.log(
-    '%cPas un thème monolithique — une vraie bibliothèque de composants (esprit Flowbite), 27 blocs testés un par un',
-    'font-style:italic;font-size:11px;background:#CBE8EE;color:#0F4A55;padding:4px 10px;border-radius:4px;'
-  );
-  console.log(
-    '%c👀 Vous jetez un œil au code ? Curiosité appréciée.',
-    'font-size:11px;color:#7A7A7A;'
-  );
+     --accent-l/--text-2), not invented. See docs/architecture.md.
+
+     Resists console.clear() -- overriding it to reprint right after
+     clearing means the credit survives a stray/deliberate clear() call
+     mid-session, not just the initial page-load print. This can NOT
+     survive an actual page reload (a fresh page load is a fresh JS
+     context by browser design, nothing site-side can override that) --
+     a non-issue regardless, since renardierPrintCredit() already runs
+     again on every single page load anyway. */
+  function renardierPrintCredit() {
+    console.log(
+      '%c THÈME %c RENARDIER ',
+      'background:#0F4A55;color:#fff;padding:5px 0 5px 11px;border-radius:4px 0 0 4px;font-weight:700;font-family:sans-serif;font-size:12px;letter-spacing:.04em;',
+      'background:#176472;color:#fff;padding:5px 11px 5px 0;border-radius:0 4px 4px 0;font-weight:400;font-family:sans-serif;font-size:12px;letter-spacing:.04em;'
+    );
+    console.log(
+      '%cConçu et développé par Reza Belounis',
+      'font-family:Georgia,serif;font-size:15px;font-weight:600;background:#176472;color:#fff;padding:4px 10px;border-radius:4px;'
+    );
+    console.log(
+      '%c→ github.com/r-belounis',
+      'font-family:monospace;font-size:12px;background:#4A6468;color:#EAF3F4;padding:4px 10px;border-radius:4px;'
+    );
+    console.log(
+      '%cPas un thème monolithique — une vraie bibliothèque de composants (esprit Flowbite), 27 blocs testés un par un',
+      'font-style:italic;font-size:11px;background:#CBE8EE;color:#0F4A55;padding:4px 10px;border-radius:4px;'
+    );
+    console.log(
+      '%c👀 Vous jetez un œil au code ? Curiosité appréciée.',
+      'font-size:11px;color:#7A7A7A;'
+    );
+  }
+  renardierPrintCredit();
+  if (window.console && typeof console.clear === 'function') {
+    var renardierRealClear = console.clear;
+    console.clear = function () {
+      renardierRealClear.apply(console, arguments);
+      renardierPrintCredit();
+    };
+  }
 
   /* ─── Desktop dropdowns ───
      Hover-only by design (CSS :hover / :focus-within in main.css) -- no
