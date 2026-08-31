@@ -5,6 +5,38 @@
 (function () {
   'use strict';
 
+  /* ─── Theme credit ───
+     Console-only, deliberately not visible anywhere on the page --
+     credits the theme's creator/developer, distinct from the site's
+     owner/content. Every line below sits on its own background chip
+     (not a bare foreground color) on purpose: %c has no way to detect
+     whether the visitor's DevTools console is light- or dark-themed, so
+     a foreground color tuned for one can vanish on the other -- a
+     background we control removes that guesswork, same contrast either
+     way. Colors are the theme's own real tokens (--accent/--accent-2/
+     --accent-l/--text-2), not invented. See docs/architecture.md. */
+  console.log(
+    '%c THÈME %c RENARDIER ',
+    'background:#0F4A55;color:#fff;padding:5px 0 5px 11px;border-radius:4px 0 0 4px;font-weight:700;font-family:sans-serif;font-size:12px;letter-spacing:.04em;',
+    'background:#176472;color:#fff;padding:5px 11px 5px 0;border-radius:0 4px 4px 0;font-weight:400;font-family:sans-serif;font-size:12px;letter-spacing:.04em;'
+  );
+  console.log(
+    '%cConçu et développé par Reza Belounis',
+    'font-family:Georgia,serif;font-size:15px;font-weight:600;background:#176472;color:#fff;padding:4px 10px;border-radius:4px;'
+  );
+  console.log(
+    '%c→ github.com/r-belounis',
+    'font-family:monospace;font-size:12px;background:#4A6468;color:#EAF3F4;padding:4px 10px;border-radius:4px;'
+  );
+  console.log(
+    '%cPas un thème monolithique — une vraie bibliothèque de composants (esprit Flowbite), 27 blocs testés un par un',
+    'font-style:italic;font-size:11px;background:#CBE8EE;color:#0F4A55;padding:4px 10px;border-radius:4px;'
+  );
+  console.log(
+    '%c👀 Vous jetez un œil au code ? Curiosité appréciée.',
+    'font-size:11px;color:#7A7A7A;'
+  );
+
   /* ─── Desktop dropdowns ───
      Hover-only by design (CSS :hover / :focus-within in main.css) -- no
      click-to-toggle JS here. Keyboard users get it via :focus-within
