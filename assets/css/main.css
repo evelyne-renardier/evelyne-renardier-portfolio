@@ -763,6 +763,16 @@ body,
   margin-bottom: 28px;
 }
 
+/* hero-cta-primary--desktop/--mobile (client-requested): a real link like
+   "tel:..." is only clickable-to-call on mobile -- desktop-first here
+   (--mobile hidden by default), swapped at the same 900px breakpoint
+   _responsive.scss already uses for nav, so there's exactly one source of
+   truth for "what counts as mobile" across the theme. Both real <a> tags
+   always render server-side; this is a pure CSS visibility swap, no JS. */
+.hero-cta-primary--mobile {
+  display: none;
+}
+
 .hero-actions {
   display: flex;
   gap: 12px;
@@ -900,6 +910,27 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
   object-position: center top;
 }
 
+/* photoFit "contain" (client-requested, same real crop bug as "2 colonnes":
+   a photo whose own aspect ratio doesn't match the panel's height, set by
+   the grid row, gets cropped by the default cover behavior above) -- keeps
+   the whole photo visible, letterboxed on the panel's own surface color
+   instead of cropped. */
+.hero-photo--contain img {
+  object-fit: contain;
+  object-position: center;
+}
+
+.hero-photo--contain {
+  background: var(--surface);
+}
+
+/* photoBorder on (client-requested, reviewed across every image-in-a-box
+   component alongside section-img--no-border/image-slider-viewport--border) --
+   the panel has never had a border, so this is a real opt-in, not a default. */
+.hero-photo--border {
+  border: 1px solid var(--border);
+}
+
 /* "Ronde" hero photo style (heroPhotoStyle Theme Setting) - a circular
    portrait sized to its own content and vertically centered next to
    the text, instead of a full-height rectangular panel filling the
@@ -924,8 +955,16 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
   display: flex;
   align-items: center;
   gap: 32px;
-  border-top: 1px solid var(--border);
   flex-wrap: wrap;
+}
+
+/* Off by default -- the section wrapper around this block
+   (.white-section/.surface-section) already has its own border-top
+   regardless of what came before it, so this block's own extra border was
+   a real, visible double border whenever placed right after another
+   section. A real, deliberate opt-in via logoStripBorder instead. */
+.logo-strip--border {
+  border-top: 1px solid var(--border);
 }
 
 .logo-strip-label {
@@ -942,6 +981,18 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
   width: auto;
   opacity: 0.7;
   filter: grayscale(30%);
+  transition: opacity 0.15s;
+}
+
+/* A linked logo (logoNUrl set) gets its own hover feedback -- otherwise
+   nothing visually distinguishes it from a plain, non-clickable logo. */
+.logo-strip a {
+  display: flex;
+  align-items: center;
+}
+
+.logo-strip a:hover img {
+  opacity: 1;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1069,6 +1120,30 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
   border: 1px solid var(--border);
 }
 
+/* imageFit variants (client-requested, real bug: a photo whose own aspect
+   ratio isn't close to 260px-tall got its top/bottom cropped by the
+   default cover behavior above). "contain" keeps the same 260px box but
+   shows the whole photo, letterboxed on the surrounding surface color
+   instead of cropped. "auto" drops the fixed box entirely -- the photo
+   renders at its own natural height, never cropped, never letterboxed. */
+.section-img--contain {
+  object-fit: contain;
+  background: var(--surface);
+}
+
+.section-img--auto {
+  height: auto;
+  object-fit: initial;
+}
+
+/* imageBorder off (client-requested, reviewed across every image-in-a-box
+   component alongside hero-photo--border/image-slider-viewport--border
+   below) -- the image has always had this border, so removing it is the
+   real opt-out, not the default. */
+.section-img--no-border {
+  border: none;
+}
+
 .section-h2 {
   font-family: var(--font-serif), serif;
   font-size: 28px;
@@ -1092,7 +1167,7 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
 }
 
 .body-text strong {
-  color: var(--text);
+  color: var(--bold);
   font-weight: 600;
 }
 
@@ -1477,7 +1552,7 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
 }
 
 .content-body strong {
-  color: var(--text);
+  color: var(--bold);
   font-weight: 600;
 }
 
@@ -1731,6 +1806,45 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
   margin-top: 7px;
 }
 
+/* "Liste de liens" layout -- same flex-column list shape as .check-list,
+   a real chevron icon instead of a plain dot (this list's own content is
+   meant to be links, not plain items) -- the icon is a real <svg> (icon
+   partial), not a ::before glyph, so it can't reuse check-list's own
+   bullet rule as-is. */
+.link-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.link-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.link-list li .icon {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.link-list li a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 2px;
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+
+.link-list li a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
 /* "Callout" layout. */
 .callout {
   background: var(--accent-l);
@@ -1743,7 +1857,7 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
 }
 
 .callout strong {
-  color: var(--accent-2);
+  color: var(--bold);
 }
 
 /* "Callout" — bordered "à retenir" box variant (label + title +
@@ -1882,7 +1996,7 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
 }
 
 .info-card-val strong {
-  color: var(--text);
+  color: var(--bold);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2168,7 +2282,26 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
 /* ═══════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════ */
+/* cta-desktop-only/cta-mobile-only (client-requested): a generic pair of
+   classes any CTA button can use for a real desktop/mobile split (the
+   sitewide "Prendre RDV" CTA's own ctaTypeMobile override, see
+   appel-action/template.hbs) -- desktop-first (mobile hidden by default),
+   swapped at the same 900px breakpoint as every other responsive rule in
+   this file, so there's exactly one source of truth for "what counts as
+   mobile" across the theme. Distinct from Hero's own earlier
+   hero-cta-primary--desktop/--mobile pair (kept as-is, already shipped and
+   tested) -- this generic pair is for every OTHER CTA button. */
+.cta-mobile-only {
+  display: none;
+}
+
 @media (max-width: 900px) {
+  .cta-desktop-only {
+    display: none;
+  }
+  .cta-mobile-only {
+    display: inline-flex;
+  }
   :root {
     --pad-h: 28px;
   }
@@ -2201,6 +2334,15 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
     width: 200px;
     height: 200px;
     margin: 0 auto;
+  }
+  /* ctaUrlMobile swap (client-requested) -- see hero/_hero.scss's own
+     comment on .hero-cta-primary--mobile for the why. Same breakpoint as
+     every other mobile/desktop swap in this file. */
+  .hero-cta-primary--desktop {
+    display: none;
+  }
+  .hero-cta-primary--mobile {
+    display: inline-flex;
   }
   .h1 {
     font-size: 36px;
@@ -2313,7 +2455,7 @@ body[data-cta-arrow=on] .btn-sec:hover::after {
 }
 
 .liste-infos-items strong {
-  color: var(--text);
+  color: var(--bold);
   font-weight: 600;
 }
 
@@ -3031,4 +3173,329 @@ body.has-gdpr-consent .alert-pos-bas-droite {
     max-width: none;
     width: auto;
   }
+}
+/* ═══════════════════════════════════════════════════
+   DIAPORAMA D'IMAGES (src/library/components/image-slider) —
+   a real, placeable slider. CSS scroll-snap handles the actual sliding
+   (swipeable on touch/trackpad with zero JS); assets/js/main.js's own
+   guarded ".image-slider" block adds the real prev/next arrows, dot
+   indicators, and optional autoplay on top.
+   ═══════════════════════════════════════════════════ */
+.image-slider {
+  position: relative;
+  margin-top: 12px;
+}
+
+/* Size toggle — no surrounding container exists for a placeable component
+   on a page-sections row (unlike .wysiwyg content, which has its own real
+   max-width), so without one this would stretch edge-to-edge across the
+   whole section. "Fixe" caps it to a real, centered, relatable width;
+   "Grande" removes the cap for the section's own full width on desktop —
+   on mobile both look the same, the viewport is already narrower than the
+   fixed cap regardless. */
+.image-slider--fixed {
+  max-width: 720px;
+}
+
+.image-slider--large {
+  max-width: 100%;
+}
+
+/* Alignment -- only visually meaningful for --fixed (a --large slider
+   already fills the section, margin has nothing to do). Applied
+   unconditionally regardless (see the component's own template.hbs
+   comment for why), simply inert on --large since its own
+   max-width:100% leaves no room to shift. */
+.image-slider--align-gauche {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.image-slider--align-centre {
+  margin-inline: auto;
+}
+
+.image-slider--align-droite {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.image-slider-viewport {
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+/* sliderBorder on (client-requested, reviewed across every image-in-a-box
+   component alongside section-img--no-border/hero-photo--border) -- the
+   viewport has never had a border, so this is a real opt-in, not a
+   default. */
+.image-slider-viewport--border {
+  border: 1px solid var(--border);
+}
+
+.image-slider-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  /* Real, own scrollbar hidden -- the dots/arrows are the intended real
+     navigation UI, not a visible native scrollbar; touch/trackpad swipe
+     still works underneath regardless (scroll-snap doesn't need a visible
+     scrollbar to function). */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.image-slider-track::-webkit-scrollbar {
+  display: none;
+}
+
+.image-slider-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
+.image-slider-slide img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* sliderRatio (client-requested): every slide must share one box height so
+   they align and the dots/arrows stay put -- unlike the other image
+   components' own imageFit/photoFit, a slider can't offer a no-crop
+   "auto" option, only which fixed ratio crops the least off your own
+   photos. 16:9 is the default, matching this component's original
+   look. */
+.image-slider--ratio-16-9 .image-slider-slide img {
+  aspect-ratio: 16/9;
+}
+
+.image-slider--ratio-4-3 .image-slider-slide img {
+  aspect-ratio: 4/3;
+}
+
+.image-slider--ratio-1-1 .image-slider-slide img {
+  aspect-ratio: 1/1;
+}
+
+.image-slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.image-slider-arrow:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.image-slider-prev {
+  left: 12px;
+  /* No "chevron-left" icon exists in this theme's icon system -- reusing
+     "chevron-right" flipped in CSS rather than adding a new icon just for
+     this one need. */
+  transform: translateY(-50%) scaleX(-1);
+}
+
+.image-slider-next {
+  right: 12px;
+}
+
+.image-slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.image-slider-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.image-slider-dot:hover {
+  background: var(--text-2);
+}
+
+.image-slider-dot--active {
+  background: var(--accent);
+  transform: scale(1.25);
+}
+
+@media (max-width: 600px) {
+  .image-slider-arrow {
+    width: 30px;
+    height: 30px;
+  }
+}
+/* ═══════════════════════════════════════════════════
+   "PRENDRE RDV" MODAL (client-requested "modal" CTA option) —
+   one shared, sitewide instance (partials/footer.hbs), opened by any CTA
+   button whose resolved type is "modal" (assets/js/main.js). Reuses
+   .contact-form/.contact-form-group/.field-error/etc. as-is (_contact-
+   form.scss) for the form itself -- only the overlay/panel chrome is new.
+   ═══════════════════════════════════════════════════ */
+.cta-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Real bug, client-found: an author-origin rule (.cta-modal{display:flex}
+   above) always beats the browser's own [hidden]{display:none} UA rule
+   regardless of specificity/order -- the modal was showing on every page
+   load, with no way to close it (nothing in main.js's own open/close
+   logic runs until a real .click on a close/open control, so a modal
+   stuck permanently visible never even reaches that code). Same exact
+   fix already applied to .form-alert-wrap[hidden]/.field-error[hidden]
+   in _alerts.scss. */
+.cta-modal[hidden] {
+  display: none !important;
+}
+
+.cta-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.cta-modal-panel {
+  position: relative;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.cta-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cta-modal-close:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ═══════════════════════════════════════════════════
+   VIDÉO (src/library/components/video) — a real, placeable video
+   component: an embedded YouTube/Vimeo/other-platform link, or a
+   self-hosted uploaded file. Same size/alignment mechanism as "Diaporama
+   d'images" (image-slider) -- see that component's own CSS comments for
+   the full reasoning, not repeated here.
+   ═══════════════════════════════════════════════════ */
+.video-embed {
+  margin-top: 12px;
+}
+
+.video-embed--fixed {
+  max-width: 720px;
+}
+
+.video-embed--large {
+  max-width: 100%;
+}
+
+.video-embed--align-gauche {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.video-embed--align-centre {
+  margin-inline: auto;
+}
+
+.video-embed--align-droite {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+/* Embed side (YouTube/Vimeo/other) -- an <iframe> has no natural size of
+   its own, so it MUST live inside a fixed-ratio box to render sanely at
+   all (a genuine requirement here, not just a styling choice, unlike the
+   crop-ratio fields elsewhere in this catalog). */
+.video-embed-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.video-embed-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-embed-frame--ratio-16-9 {
+  aspect-ratio: 16/9;
+}
+
+.video-embed-frame--ratio-4-3 {
+  aspect-ratio: 4/3;
+}
+
+.video-embed-frame--ratio-1-1 {
+  aspect-ratio: 1/1;
+}
+
+.video-embed-frame--ratio-9-16 {
+  aspect-ratio: 9/16;
+  max-width: 360px;
+  margin-inline: auto;
+}
+
+/* Upload side (self-hosted file) -- a real <video> has its own natural
+   size, rendered as-is (never cropped, never forced into videoRatio's
+   box) -- closer to imageFit's own "auto" option than to the embed side
+   above or the slider's forced-crop family. */
+.video-embed-native {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: var(--surface);
 }

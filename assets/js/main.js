@@ -464,4 +464,151 @@
       }
     });
   });
+
+  /* ─── "Prendre RDV" modal (client-requested "modal" CTA option) ───
+     Opens/closes the one shared #cta-modal (partials/footer.hbs) -- the
+     form INSIDE it is a plain form.contact-form, already fully handled by
+     the contact-form block above (validation, fetch()-or-mailto submit)
+     with zero extra code here. This block only owns the overlay itself:
+     open/close, Escape, backdrop click, and a real (if simple) focus trap
+     -- a booking modal is exactly the kind of thing a keyboard/screen-
+     reader user must not get stuck behind or lose their place around. */
+  var ctaModal = document.getElementById('cta-modal');
+  if (ctaModal) {
+    var ctaModalPanel = ctaModal.querySelector('.cta-modal-panel');
+    var ctaModalOpener = null; // focus returns here on close
+
+    function ctaModalFocusable() {
+      return Array.prototype.slice.call(
+        ctaModalPanel.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled])'
+        )
+      );
+    }
+
+    function openCtaModal(opener) {
+      ctaModalOpener = opener || null;
+      ctaModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      var focusable = ctaModalFocusable();
+      if (focusable[0]) focusable[0].focus();
+    }
+
+    function closeCtaModal() {
+      ctaModal.hidden = true;
+      document.body.style.overflow = '';
+      if (ctaModalOpener) ctaModalOpener.focus();
+    }
+
+    // Delegated on `document` (not a static NodeList snapshot) -- opens
+    // for ANY current or future element with this data attribute, from
+    // one listener, regardless of how many "Prendre RDV" buttons this
+    // page actually rendered (topbar/menu/contact-bar/Hero can each have
+    // their own).
+    document.addEventListener('click', function (e) {
+      var opener = e.target.closest('[data-open-modal="cta-modal"]');
+      if (opener) {
+        e.preventDefault();
+        openCtaModal(opener);
+        return;
+      }
+      if (e.target.closest('[data-close-modal]')) {
+        closeCtaModal();
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (ctaModal.hidden) return;
+      if (e.key === 'Escape') {
+        closeCtaModal();
+        return;
+      }
+      // Real focus trap: Tab past the last focusable element wraps to the
+      // first (and vice-versa with Shift+Tab) -- keeps a keyboard user
+      // from tabbing out into the page hidden behind the overlay.
+      if (e.key === 'Tab') {
+        var focusable = ctaModalFocusable();
+        if (!focusable.length) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+  }
+
+  /* ─── Diaporama d'images (image-slider component) ───
+     The HTML/CSS alone already gives a real, swipeable slider (CSS
+     scroll-snap on .image-slider-track) with zero JS -- this block only
+     adds the real prev/next arrows, the dot indicators (built from
+     however many slides actually rendered on this particular row, not a
+     fixed 8), and optional autoplay, same "guarded block in the one
+     shared main.js" pattern as every other interactive component here. */
+  document.querySelectorAll('.image-slider').forEach(function (slider) {
+    var track = slider.querySelector('.image-slider-track');
+    var slides = Array.prototype.slice.call(slider.querySelectorAll('.image-slider-slide'));
+    if (!track || slides.length < 2) return; // one slide (or none): no nav needed
+
+    var dotsWrap = slider.querySelector('.image-slider-dots');
+    var dots = slides.map(function (_, i) {
+      var dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'image-slider-dot';
+      dot.setAttribute('aria-label', 'Aller à l’image ' + (i + 1));
+      dot.addEventListener('click', function () {
+        goTo(i);
+      });
+      dotsWrap.appendChild(dot);
+      return dot;
+    });
+
+    var current = 0;
+    function setActiveDot(index) {
+      dots.forEach(function (dot, i) {
+        dot.classList.toggle('image-slider-dot--active', i === index);
+      });
+    }
+    function goTo(index) {
+      current = (index + slides.length) % slides.length;
+      slides[current].scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+      setActiveDot(current);
+    }
+    setActiveDot(0);
+
+    var prevBtn = slider.querySelector('.image-slider-prev');
+    var nextBtn = slider.querySelector('.image-slider-next');
+    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(current - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+    // A real manual swipe/scroll (not one of our own goTo() calls) should
+    // still update which dot is active -- approximate "which slide is
+    // this" from scrollLeft rather than tracking scroll events per pixel.
+    var scrollTimer;
+    track.addEventListener('scroll', function () {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(function () {
+        var index = Math.round(track.scrollLeft / track.clientWidth);
+        current = Math.max(0, Math.min(slides.length - 1, index));
+        setActiveDot(current);
+      }, 100);
+    });
+
+    if (slider.getAttribute('data-autoplay') === 'true') {
+      var interval = parseInt(slider.getAttribute('data-interval'), 10) || 5000;
+      var timer = setInterval(function () {
+        goTo(current + 1);
+      }, interval);
+      // A real visitor interacting with the slider should stop autoplay,
+      // not fight it on the next tick.
+      ['pointerdown', 'keydown'].forEach(function (evt) {
+        slider.addEventListener(evt, function () {
+          clearInterval(timer);
+        }, { once: true });
+      });
+    }
+  });
 })();
